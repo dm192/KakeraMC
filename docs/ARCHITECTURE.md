@@ -111,7 +111,9 @@ userData/
 ## IPC 契约
 
 - 通道常量与 DTO：`src/shared/channels.ts`、`src/shared/types.ts`、`src/shared/schemas.ts`
-- 主进程统一返回信封 `{ ok: true, value } | { ok: false, error: AppError }`；preload 解包并把 `code` 挂到 `Error` 上
+- 主进程统一返回信封 `{ ok: true, value } | { ok: false, error: AppError }`
+- preload 只暴露一个 `invoke(channel, arg)` / `on(channel, cb)` 的通用桥；**类型化 API 与错误对象在渲染层构造**（`src/renderer/src/api.ts`）
+  - 原因：`contextBridge` 会把跨上下文的 `Error` 重新克隆，自定义属性（如 `code`）会丢失，导致界面只能显示「操作失败」。改为传信封、在渲染层 `new ApiError(envelope.error)` 后，错误码与细节完整保留。
 - 错误码稳定（`auth.needs-reauth`、`launch.java-missing`…），**文案归渲染层**：主进程只发 i18n key 与参数，不发中文/英文句子
 - 推送事件：`tasks`、`launch-state`、`launch-log`、`accounts`、`settings`
 

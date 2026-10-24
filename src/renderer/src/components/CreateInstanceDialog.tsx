@@ -3,6 +3,7 @@ import type { FormEvent, JSX } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import type { LoaderOption, LoaderType, VersionOption } from '@shared/types'
 import { useStore } from '../state/store'
+import { api } from '../api'
 import { useI18n } from '../i18n/useI18n'
 import type { MessageKey } from '../i18n/messages'
 import { Button } from './Button'
@@ -35,7 +36,7 @@ export function CreateInstanceDialog({ open, onOpenChange }: CreateInstanceDialo
     if (!open) return
     let cancelled = false
     setFormError(null)
-    window.kakera
+    api
       .listMinecraftVersions()
       .then((list) => {
         if (cancelled) return
@@ -69,7 +70,7 @@ export function CreateInstanceDialog({ open, onOpenChange }: CreateInstanceDialo
     setLoaderError(null)
     setLoaderVersions([])
     setLoaderVersion('')
-    window.kakera
+    api
       .listLoaderVersions({ mcVersion, loader })
       .then((list) => {
         if (cancelled) return

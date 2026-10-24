@@ -1,8 +1,8 @@
-import type { KakeraApi } from '@shared/types'
+import type { KakeraBridge } from './api'
 
 declare global {
   interface Window {
-    kakera: KakeraApi
+    kakeraBridge: KakeraBridge
   }
 }
 

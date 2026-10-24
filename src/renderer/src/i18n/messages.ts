@@ -26,6 +26,12 @@ export const zhCN = {
   'instances.empty.hint': '创建一个实例来安装 Minecraft，运行所需的文件会自动下载。',
   'instances.empty.action': '创建实例',
   'instances.empty.filtered': '没有匹配的实例。',
+  'instance.menu.aria': '实例操作',
+  'instance.menu.rename': '重命名…',
+  'instance.menu.delete': '删除实例…',
+  'instance.rename.title': '重命名实例',
+  'instance.delete.title': '删除实例',
+  'instance.delete.body': '将删除「{name}」的实例目录，包括存档、模组与日志。共享的游戏资源不会删除。',
 
   'main.noSelection.title': '未选择实例',
   'main.noSelection.hint': '在左侧选择一个实例，或创建一个新的。',
@@ -196,6 +202,13 @@ export const en: Record<MessageKey, string> = {
   'instances.empty.hint': 'Create an instance to install Minecraft; the required files are downloaded automatically.',
   'instances.empty.action': 'Create instance',
   'instances.empty.filtered': 'No instance matches this filter.',
+  'instance.menu.aria': 'Instance actions',
+  'instance.menu.rename': 'Rename…',
+  'instance.menu.delete': 'Delete instance…',
+  'instance.rename.title': 'Rename instance',
+  'instance.delete.title': 'Delete instance',
+  'instance.delete.body':
+    'This deletes the instance folder for "{name}", including saves, mods and logs. Shared game files are kept.',
 
   'main.noSelection.title': 'No instance selected',
   'main.noSelection.hint': 'Pick an instance on the left, or create a new one.',

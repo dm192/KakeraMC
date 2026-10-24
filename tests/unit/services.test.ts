@@ -190,3 +190,37 @@ describe('AccountService', () => {
     await expect(service.launchIdentity()).rejects.toMatchObject({ code: 'launch.no-account' })
   })
 })
+
+describe('Microsoft auth wiring', () => {
+  it('rejects with a stable code when no client id is configured', async () => {
+    const { MicrosoftAuth } = await import('@main/core/auth/microsoft')
+    const auth = new MicrosoftAuth({
+      clientId: null,
+      openExternal: async () => undefined,
+      onPrompt: () => undefined
+    })
+    await expect(auth.interactive()).rejects.toMatchObject({ code: 'auth.not-configured' })
+  })
+
+  it('keeps the error code through the account service and IPC serialization', async () => {
+    const { MicrosoftAuth } = await import('@main/core/auth/microsoft')
+    const { toAppError } = await import('@shared/errors')
+    const vault = new TokenVault(dir, fakeBox(true))
+    await vault.load()
+    const service = new AccountService(
+      dir,
+      vault,
+      (onPrompt) =>
+        new MicrosoftAuth({
+          clientId: null,
+          openExternal: async () => undefined,
+          onPrompt
+        })
+    )
+    await service.init()
+
+    const error = await service.addMicrosoft().catch((caught: unknown) => caught)
+    expect(error).toMatchObject({ code: 'auth.not-configured' })
+    expect(toAppError(error).code).toBe('auth.not-configured')
+  })
+})

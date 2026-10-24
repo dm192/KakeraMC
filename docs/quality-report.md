@@ -11,7 +11,7 @@
 | `npm run typecheck` | 通过（main/preload/renderer，strict + noUncheckedIndexedAccess） |
 | `npm run build` | 通过（main 75.7 kB、preload 3.7 kB、renderer 861 kB + 14 kB CSS） |
 | `npm run lint` | 通过，0 error / 0 warning |
-| `npm test` | **25 tests / 2 files 全部通过** |
+| `npm test` | **27 tests / 2 files 全部通过** |
 
 ## 2. 端到端（Electron + Playwright，测试后端）
 
@@ -20,10 +20,12 @@
 | 空实例列表启动、导航与空状态 | 通过 |
 | 创建实例（版本 + Fabric）→ 安装进度 → 安装完成 → 无账户时启动禁用 | 通过 |
 | 添加离线档案 → 启动按钮可用 | 通过（同上用例） |
+| 实例菜单：重命名 → 删除 → 回到空状态 | 通过 |
+| 未配置 Client ID 时点击微软登录 → 明确提示（错误码经 IPC 往返后仍保留） | 通过 |
 | 切换语言并重启后保留设置 | 通过 |
 | 三个主视图 axe（WCAG 2.1 A/AA）扫描 | **0 violation** |
 
-`npm run e2e` 结果：4 passed（真实启动用例在未设置环境变量时跳过）。
+`npm run e2e` 结果：6 passed，1 skipped（真实启动用例在未设置环境变量时跳过）。
 
 ## 3. 真实网络验收
 
@@ -83,7 +85,8 @@ Java 选择：系统 Zulu 25.0.4，与版本要求的 major 25 匹配，未触�
 
 ### 5.2 界面审查
 
-- 截图（`docs/screenshots/`）：空状态、创建实例对话框、安装中、账户空状态、设置。
+- 截图（`docs/screenshots/`）：空状态、创建实例对话框、安装中、账户空状态、设置、1024×720 下的设置页。
+- 横向溢出实测：1024×720 / 1280×800 / 1440×900 三种尺寸下 `documentElement.scrollWidth - clientWidth = 0`，设置页同样为 0。
 - 渲染审查结论（人工）：层级清楚，主操作唯一（琥珀色）；进度条显示真实字节与百分比；无装饰性状态点、无营销文案、无虚构指标。
 - 删除检查后移除/调整：实例列表为空时隐藏筛选框；离线档案说明仅在存在离线档案时显示；空状态标题改为真正的 `h1`（axe 结构要求）；设置页保存按钮改为吸底。
 

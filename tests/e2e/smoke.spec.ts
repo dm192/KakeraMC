@@ -67,6 +67,34 @@ test.describe('KakeraMC launcher shell', () => {
     await expect(page.getByRole('button', { name: '启动', exact: true })).toBeEnabled()
   })
 
+  test('renames and deletes an instance from its menu', async () => {
+    await page.getByRole('button', { name: '创建实例', exact: true }).click()
+    await page.getByLabel('名称', { exact: true }).fill('待改名')
+    await page.getByLabel('游戏版本', { exact: true }).selectOption('1.99.0')
+    await page.getByRole('dialog').getByRole('button', { name: '创建', exact: true }).click()
+    await expect(page.locator('.instance__name')).toHaveText('待改名')
+
+    await page.getByRole('button', { name: '实例操作', exact: true }).click()
+    await page.getByRole('menuitem', { name: '重命名…', exact: true }).click()
+    await page.getByLabel('名称', { exact: true }).fill('改名后')
+    await page.getByRole('dialog').getByRole('button', { name: '保存', exact: true }).click()
+    await expect(page.locator('.instance__name')).toHaveText('改名后')
+
+    await page.getByRole('button', { name: '实例操作', exact: true }).click()
+    await page.getByRole('menuitem', { name: '删除实例…', exact: true }).click()
+    await expect(page.getByRole('dialog')).toContainText('改名后')
+    await page.getByRole('dialog').getByRole('button', { name: '删除实例…', exact: true }).click()
+
+    await expect(page.locator('.empty__title')).toHaveText('还没有实例')
+  })
+
+  test('explains that Microsoft sign-in needs a client id', async () => {
+    await page.getByRole('button', { name: '账户', exact: true }).click()
+    await page.getByRole('button', { name: '微软登录', exact: true }).click()
+    await expect(page.getByRole('alert')).toContainText('尚未配置微软应用 Client ID')
+    await expect(page.getByRole('alert')).toContainText('microsoftClientId')
+  })
+
   test('switches language and persists the setting', async () => {
     await page.getByRole('button', { name: '设置', exact: true }).click()
     await page.getByLabel('界面语言', { exact: true }).selectOption('en')

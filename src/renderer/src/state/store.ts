@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { api } from '../api'
 import type {
   AccountState,
   AppError,
@@ -46,6 +47,7 @@ interface Store {
   refreshSettings: () => Promise<void>
   saveSettings: (patch: SettingsPatch) => Promise<boolean>
   createInstance: (input: CreateInstanceInput) => Promise<boolean>
+  renameInstance: (id: string, name: string) => Promise<boolean>
   deleteInstance: (id: string) => Promise<void>
   install: (id: string) => Promise<void>
   installAndPlay: (id: string) => Promise<void>
@@ -89,7 +91,7 @@ export const useStore = create<Store>((set, get) => {
   let initStarted = false
 
   const refetchAccounts = async (): Promise<void> => {
-    set({ accounts: await window.kakera.getAccounts() })
+    set({ accounts: await api.getAccounts() })
   }
 
   return {
@@ -114,17 +116,17 @@ export const useStore = create<Store>((set, get) => {
       initStarted = true
       try {
         const [info, settings, instances, accounts, tasks, launch] = await Promise.all([
-          window.kakera.getAppInfo(),
-          window.kakera.getSettings(),
-          window.kakera.listInstances(),
-          window.kakera.getAccounts(),
-          window.kakera.listTasks(),
-          window.kakera.getLaunchStatus()
+          api.getAppInfo(),
+          api.getSettings(),
+          api.listInstances(),
+          api.getAccounts(),
+          api.listTasks(),
+          api.getLaunchStatus()
         ])
         const selectedId = instances[0]?.id ?? null
         set({ info, settings, instances, accounts, tasks, launch, selectedId, ready: true })
 
-        window.kakera.onTasks((next) => {
+        api.onTasks((next) => {
           const previous = get().tasks
           set({ tasks: next })
           for (const task of next) {
@@ -137,15 +139,15 @@ export const useStore = create<Store>((set, get) => {
             }
           }
         })
-        window.kakera.onLaunchState((status) => {
+        api.onLaunchState((status) => {
           set({ launch: status })
         })
-        window.kakera.onLaunchLog((line) => {
+        api.onLaunchLog((line) => {
           const logs = [...get().logs, line]
           set({ logs: logs.length > 2_000 ? logs.slice(logs.length - 2_000) : logs })
         })
-        window.kakera.onAccounts((state) => set({ accounts: state }))
-        window.kakera.onSettings((settingsNext) => set({ settings: settingsNext }))
+        api.onAccounts((state) => set({ accounts: state }))
+        api.onSettings((settingsNext) => set({ settings: settingsNext }))
       } catch (error) {
         set({ bootError: toBanner(error), ready: true })
       }
@@ -157,7 +159,7 @@ export const useStore = create<Store>((set, get) => {
 
     select(id) {
       set({ selectedId: id, logs: [], verify: null })
-      if (id) void window.kakera.getLogs({ id, limit: 400 }).then((logs) => set({ logs }))
+      if (id) void api.getLogs({ id, limit: 400 }).then((logs) => set({ logs }))
     },
 
     setFilter(value) {
@@ -165,7 +167,7 @@ export const useStore = create<Store>((set, get) => {
     },
 
     async refreshInstances() {
-      const instances = await window.kakera.listInstances()
+      const instances = await api.listInstances()
       const selectedId = get().selectedId
       set({
         instances,
@@ -174,12 +176,12 @@ export const useStore = create<Store>((set, get) => {
     },
 
     async refreshSettings() {
-      set({ settings: await window.kakera.getSettings() })
+      set({ settings: await api.getSettings() })
     },
 
     async saveSettings(patch) {
       try {
-        const settings = await window.kakera.updateSettings(patch)
+        const settings = await api.updateSettings(patch)
         set({ settings, banner: null })
         void get().refreshInstances()
         return true
@@ -191,7 +193,7 @@ export const useStore = create<Store>((set, get) => {
 
     async createInstance(input) {
       try {
-        const instance = await window.kakera.createInstance(input)
+        const instance = await api.createInstance(input)
         await get().refreshInstances()
         set({ selectedId: instance.id, banner: null, view: 'instances', verify: null })
         return true
@@ -201,9 +203,21 @@ export const useStore = create<Store>((set, get) => {
       }
     },
 
+    async renameInstance(id, name) {
+      try {
+        await api.renameInstance({ id, name })
+        await get().refreshInstances()
+        set({ banner: null })
+        return true
+      } catch (error) {
+        set({ banner: toBanner(error) })
+        return false
+      }
+    },
+
     async deleteInstance(id) {
       try {
-        await window.kakera.deleteInstance({ id })
+        await api.deleteInstance({ id })
         await get().refreshInstances()
         set({ banner: null, logs: [], verify: null })
       } catch (error) {
@@ -213,7 +227,7 @@ export const useStore = create<Store>((set, get) => {
 
     async install(id) {
       try {
-        await window.kakera.startInstall({ id })
+        await api.startInstall({ id })
         set({ banner: null, verify: null })
       } catch (error) {
         set({ banner: toBanner(error) })
@@ -228,13 +242,13 @@ export const useStore = create<Store>((set, get) => {
     },
 
     async cancelTask(taskId) {
-      await window.kakera.cancelTask({ id: taskId })
+      await api.cancelTask({ id: taskId })
     },
 
     async play(id) {
       try {
         set({ banner: null })
-        await window.kakera.launch({ id })
+        await api.launch({ id })
       } catch (error) {
         set({ banner: toBanner(error) })
       }
@@ -242,7 +256,7 @@ export const useStore = create<Store>((set, get) => {
 
     async stop() {
       try {
-        await window.kakera.stopLaunch()
+        await api.stopLaunch()
       } catch (error) {
         set({ banner: toBanner(error) })
       }
@@ -251,7 +265,7 @@ export const useStore = create<Store>((set, get) => {
     async verifyInstance(id) {
       set({ verifying: true, verify: null })
       try {
-        const report = await window.kakera.verifyInstance({ id })
+        const report = await api.verifyInstance({ id })
         set({ verify: { instanceId: id, report }, banner: null })
       } catch (error) {
         set({ banner: toBanner(error) })
@@ -262,7 +276,7 @@ export const useStore = create<Store>((set, get) => {
 
     async openLogs(id) {
       try {
-        await window.kakera.openLogs({ id })
+        await api.openLogs({ id })
       } catch (error) {
         set({ banner: toBanner(error) })
       }
@@ -270,7 +284,7 @@ export const useStore = create<Store>((set, get) => {
 
     async addMicrosoft() {
       try {
-        await window.kakera.addMicrosoftAccount()
+        await api.addMicrosoftAccount()
         await refetchAccounts()
         set({ banner: null })
       } catch (error) {
@@ -281,7 +295,7 @@ export const useStore = create<Store>((set, get) => {
 
     async addOffline(name) {
       try {
-        const accounts = await window.kakera.addOfflineAccount({ name })
+        const accounts = await api.addOfflineAccount({ name })
         set({ accounts, banner: null })
         return true
       } catch (error) {
@@ -292,7 +306,7 @@ export const useStore = create<Store>((set, get) => {
 
     async selectAccount(id) {
       try {
-        set({ accounts: await window.kakera.selectAccount({ id: id ?? '' }) })
+        set({ accounts: await api.selectAccount({ id: id ?? '' }) })
       } catch (error) {
         set({ banner: toBanner(error) })
       }
@@ -300,14 +314,14 @@ export const useStore = create<Store>((set, get) => {
 
     async removeAccount(id) {
       try {
-        set({ accounts: await window.kakera.removeAccount({ id }) })
+        set({ accounts: await api.removeAccount({ id }) })
       } catch (error) {
         set({ banner: toBanner(error) })
       }
     },
 
     async cancelAuth() {
-      await window.kakera.cancelAuth()
+      await api.cancelAuth()
     },
 
     dismissBanner() {

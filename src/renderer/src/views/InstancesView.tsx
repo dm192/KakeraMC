@@ -9,6 +9,7 @@ import { AccountMenu } from '../components/AccountMenu'
 import { BannerView } from '../components/Banner'
 import { Button } from '../components/Button'
 import { CreateInstanceDialog } from '../components/CreateInstanceDialog'
+import { InstanceMenu } from '../components/InstanceMenu'
 import { LogPanel } from '../components/LogPanel'
 import { TaskProgress } from '../components/TaskProgress'
 
@@ -114,6 +115,7 @@ export function InstancesView({ onManageAccounts }: { onManageAccounts: () => vo
                   launching={launching}
                   taskId={task?.id ?? null}
                 />
+                <InstanceMenu instance={instance} />
               </div>
             </header>
 
