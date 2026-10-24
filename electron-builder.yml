@@ -1,0 +1,64 @@
+appId: com.kakeramc.launcher
+productName: KakeraMC Launcher
+copyright: Copyright © 2026 KakeraMC
+directories:
+  buildResources: build
+  output: dist
+
+# Electron main/preload/renderer bundles plus production node_modules (electron
+# is bundled separately by electron-builder). Sources and tests stay out.
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+  - '!**/*.ts'
+  - '!src/**'
+  - '!tests/**'
+  - '!scripts/**'
+  - '!docs/**'
+  - '!tmp/**'
+  - '!dist/**'
+  - '!.github/**'
+
+asar: true
+compression: normal
+
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: KakeraMC Launcher
+  artifactName: ${productName}-${version}-setup.${ext}
+
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
+
+mac:
+  icon: build/icon.png
+  category: public.app-category.games
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+
+linux:
+  icon: build/icon.png
+  category: Game
+  synopsis: Cross-platform Minecraft launcher
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]

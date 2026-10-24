@@ -1,0 +1,56 @@
+:root {
+  color-scheme: dark;
+
+  /* Neutral surface ramp: near-black canvas, two raised planes. */
+  --bg: #0b0c0e;
+  --surface: #14161a;
+  --surface-raised: #1a1d22;
+  --surface-hover: #1f232a;
+  --border: #24272e;
+  --border-strong: #343a43;
+
+  /* Text ramp. */
+  --text: #e7e9ee;
+  --text-muted: #9aa1ad;
+  --text-faint: #7b8390;
+
+  /* One accent, reserved for the single primary action. */
+  --accent: #e2a24b;
+  --accent-hover: #eeb268;
+  --accent-ink: #1a1206;
+  --accent-soft: #2a2114;
+
+  /* Only used for real failures. */
+  --danger: #e2725f;
+  --danger-hover: #ee8a79;
+  --danger-soft: #2a1a17;
+
+  --focus: #8ab4f8;
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  --font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", "PingFang SC",
+    system-ui, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, "Liberation Mono", monospace;
+
+  --duration: 150ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration: 0ms;
+  }
+}
