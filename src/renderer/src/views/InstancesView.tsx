@@ -140,7 +140,7 @@ export function InstancesView({ onManageAccounts }: { onManageAccounts: () => vo
 
               {running ? (
                 <p className="main__meta">
-                  <Elapsed startedAt={launch.startedAt ?? null} />
+                  {t('status.running')} · <Elapsed startedAt={launch.startedAt ?? null} />
                 </p>
               ) : null}
 

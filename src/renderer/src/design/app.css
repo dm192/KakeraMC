@@ -505,7 +505,7 @@
 }
 
 .empty__hint {
-  max-width: 42ch;
+  max-width: 50ch;
   font-size: 13px;
   color: var(--text-muted);
 }
